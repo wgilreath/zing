@@ -1,1 +1,0 @@
-This is dummy file to create src or source code directory.
