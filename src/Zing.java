@@ -3,7 +3,8 @@
  *
  * Title: Zing - Zero packet pING network utility.
  *
- * Description: A Java compiler using the Java Compiler API with options not in javac.
+ * Description: Zero packet PING utility that checks host by name or ip-address 
+ *     is active, and time in milliseconds to reach.
  *
  * @author William F. Gilreath (will@wfgilreath.xyz)
  * @version 1.2.2  09/01/22
@@ -181,7 +182,6 @@ public final class Zing {
 
     }// end doZingToHost
 
-    //  //
     /**
      * Get total time to zing using equation: time = (double) timeTotal /
      * (double) ports.length / (double) limit;
