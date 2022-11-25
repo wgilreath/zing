@@ -1,0 +1,71 @@
+.\" Copyright William Gilreatb, 2022
+.\" Published in Linux Magazine November 2022.
+.\"
+.\" %%%LICENSE_START(GPL_NOVERSION_ONELINE)
+.\" Do not restrict distribution.
+.\" May be distributed under the GNU General Public License
+.\" %%%LICENSE_END
+.\"
+.\" First release, wfg 11-25-22
+.\"
+
+.TH zing 8 man 8 ZING(8) "November 2022" "1.0" "zing man page"
+.PP
+.SH NAME
+.B zing   
+- zero packet pING to network hosts on specific ports.
+
+.SH SYNOPSIS
+
+.B zing [ -h | [-4|-6] [-c count] [-op ops] [-p ports] [-t timeout] ] host 
+
+.SH DESCRIPTION
+The zing utility uses a socket to connect on multiple ports of a remote host that have an IP address
+either IPv4 or IPv6. The default ports are HTTP port 80 and HTTPS port 443 on a remote host. The 
+zing utility will connect multiple times, determine if the remote host is present, and the minimum, 
+maximum, average, and standard deviation of the time to reach the host.
+.PP
+
+.SH OPTIONS
+.B  -4	Use IPv4 addresses for the remote host.
+.PP
+.B  -6	Use IPv6 addresses for the remote host.
+.PP
+.B  -c	The count of the number of ops or operations to the remote host.
+.PP 
+.B  -h	Print help with the zing command-line interface parameters.
+.PP
+.B -op	The number of operations or ops for an operation to remote host.
+.PP
+.B  -p	The list of ports to zing on the remote host.
+.PP
+.B  -t	Specify the timeout in milliseconds before zing exits.
+.PP
+
+.SH EXAMPLES
+.B zing -4 -c 4 -op 4 -p 80,443 -t 4000 google.com
+
+.SH EXIT STATUS
+The zing utility exits with one of the following values:
+.PP
+.B 0 	The zing operation was successful with the specified host.
+.PP
+.B 1 	The zing operation was unable to find or reach the specified host.
+.PP
+.SH SEE ALSO
+.PP
+netstat(1), ifconfig(8), routed(8), traceroute(8), ping(8)
+
+.SH HISTORY
+The zing utility appeared in the November 2022 in Linux Magazine.
+      
+.SH AUTHOR
+The original zing utility was written by William F. Gilreath (will@wfgilreath.xyz) in Java, ported to C# and Python.
+
+.SH BUGS
+I should think so. No known bugs initially.
+
+.SH COPYRIGHT
+Copyright (c) 2022 William Gilreath, License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>. 
+This is free software: you are free to change and redistribute it. There is NO WARRANTY to the extent permitted by the law.
+

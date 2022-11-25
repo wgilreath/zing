@@ -1,0 +1,90 @@
+<HTML>
+<HEAD>
+<TITLE>zing(8) Man Page</TITLE>
+</HEAD>
+<BODY>
+<h1>zing(8) -  Man Page</h1>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>zing</B> <B>[</B> <B>-h</B> <B>|</B> <B>[-4|-6]</B> <B>[-c</B> <B>count]</B> <B>[-op</B> <B>ops]</B> <B>[-p</B> <B>ports]</B> <B>[-t</B> <B>timeout]</B> <B>]</B> <B>host</B>
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       The zing utility uses a socket to connect on multiple ports of a remote
+       host that have an IP address either IPv4 or IPv6. The default ports are
+       HTTP port 80 and HTTPS port 443 on a remote host. The zing utility will
+       connect  multiple  times,  determine if the remote host is present, and
+       the minimum, maximum, average, and standard deviation of  the  time  to
+       reach the host.
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>-4</B>   <B>Use</B> <B>IPv4</B> <B>addresses</B> <B>for</B> <B>the</B> <B>remote</B> <B>host.</B>
+
+       <B>-6</B>   <B>Use</B> <B>IPv6</B> <B>addresses</B> <B>for</B> <B>the</B> <B>remote</B> <B>host.</B>
+
+       <B>-c</B>   <B>The</B> <B>count</B> <B>of</B> <B>the</B> <B>number</B> <B>of</B> <B>ops</B> <B>or</B> <B>operations</B> <B>to</B> <B>the</B> <B>remote</B> <B>host.</B>
+
+       <B>-h</B>   <B>Print</B> <B>help</B> <B>with</B> <B>the</B> <B>zing</B> <B>command-line</B> <B>interface</B> <B>parameters.</B>
+
+       <B>-op</B>  <B>The</B> <B>number</B> <B>of</B> <B>operations</B> <B>or</B> <B>ops</B> <B>for</B> <B>an</B> <B>operation</B> <B>to</B> <B>remote</B> <B>host.</B>
+
+       <B>-p</B>   <B>The</B> <B>list</B> <B>of</B> <B>ports</B> <B>to</B> <B>zing</B> <B>on</B> <B>the</B> <B>remote</B> <B>host.</B>
+
+       <B>-t</B>   <B>Specify</B> <B>the</B> <B>timeout</B> <B>in</B> <B>milliseconds</B> <B>before</B> <B>zing</B> <B>exits.</B>
+
+
+</PRE>
+<H2>EXAMPLES</H2><PRE>
+       <B>zing</B> <B>-4</B> <B>-c</B> <B>4</B> <B>-op</B> <B>4</B> <B>-p</B> <B>80,443</B> <B>-t</B> <B>4000</B> <B>google.com</B>
+
+
+</PRE>
+<H2>EXIT STATUS</H2><PRE>
+       The zing utility exits with one of the following values:
+
+       <B>0</B>    <B>The</B> <B>zing</B> <B>operation</B> <B>was</B> <B>successful</B> <B>with</B> <B>the</B> <B>specified</B> <B>host.</B>
+
+       <B>1</B>    <B>The</B> <B>zing</B> <B>operation</B> <B>was</B> <B>unable</B> <B>to</B> <B>find</B> <B>or</B> <B>reach</B> <B>the</B> <B>specified</B> <B>host.</B>
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+       <B>netstat(1)</B>, <B>ifconfig(8)</B>, <B>routed(8)</B>, <B>traceroute(8)</B>, <B>ping(8)</B>
+
+
+</PRE>
+<H2>HISTORY</H2><PRE>
+       The zing utility appeared in the November 2022 in Linux Magazine.
+       
+</PRE>
+<H2>AUTHOR</H2><PRE>
+       The original zing utility was written by William F. Gilreath (will@wfgilreath.xyz) 
+       in Java, ported to C# and Python.
+
+</PRE>
+<H2>BUGS</H2><PRE>
+       I should think so. No known bugs initially.
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
+       Copyright (c) 2022 William Gilreath, License GPLv3+: GNU GPL version 3 
+       or later https://gnu.org/licenses/gpl.html.
+       
+       This is free software: you are free to change and redistribute it.
+
+
+
+8                                     man                              <B>zing(8)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
