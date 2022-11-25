@@ -93,6 +93,10 @@ An example of **ping** to open-DNS server one.one.one.one using TCP/IP v6 to the
 
 ![Zing TCP/IP v6 one.one.one.one](https://raw.github.com/wgilreath/zing/master/screenshot_zing_tcp6_oneoneoneone.png?raw=true "Zing one.one.one.one")
 
+Ports to Other Languages
+===============================
+
+Zing has been ported as of November 2022 to C# and Python. If you port Zing to another programming language, please reach out and share!
 
 License
 ===============================
