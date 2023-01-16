@@ -1,6 +1,6 @@
 # Zing - the Zero packet Ping network utility
 
-Zing is a lightweight, zero packet utility similar to ping, that provides similar functionality as the ubiquitous ping network utility.
+Zing is a lightweight, zero packet utility similar to ping, that provides similar functionality as the ubiquitous ping network utility. The Zing network utility was published in Linux magazine for December 2022 Issue 265/2022 as "Zing Me" here: https://www.linux-magazine.com/Issues/2022/265/Zing#article_i5
 
 Features
 ========
@@ -96,10 +96,10 @@ An example of **ping** to open-DNS server one.one.one.one using TCP/IP v6 to the
 Ports to Other Languages
 ===============================
 
-Zing has been ported as of November 2022 to C# and Python. If you port Zing to another programming language, please reach out and share!
+Zing has been ported as of November 2022 to C# and Python; as of January 2023 Zing has been ported to Go. If you port Zing to another programming language, please reach out and share!
 
 License
 ===============================
 
-This compiler is licensed under the GNU General Public License version 3. The user book is licensed under the Creative Commons share alike attribution license version 4.
+The Zing utility is licensed under the GNU General Public License version 3. The documentation, and man page is licensed under the Creative Commons Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0) license https://creativecommons.org/licenses/by-nd/4.0/
 
