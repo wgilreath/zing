@@ -27,12 +27,23 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 final class Zing2 {
 
 
     private static final String ZING_USAGE = "Usage: zing -h | [-4|-6] [-c count] [-op ops] [-p ports] [-t timeout] host";
     private static final String ZING_EXAMPLE = "zing -4 -c 4 -op 4 -p 80,443 -t 4000 google.com";
+    private static final String FLAG_TCP_4 = "-4";
+    private static final String FLAG_TCP_6 = "-6";
+    private static final String FLAG_COUNT = "-c";
+    private static final String FLAG_LIMIT = "-op";
+    private static final String FLAG_PORTS = "-p";
+    private static final String FLAG_TIMEOUT = "-t";
+    private static final String FLAG_HELP = "-h";
+
 
     private static InetAddress inetAddr = null; // network address name for hostname
     private static int timeout = 4000; // default socket time 4000 ms = 4-seconds
@@ -60,13 +71,11 @@ final class Zing2 {
      */
     public static void main(final String[] args) {
 
-        if (args.length == 0) {
-            logUsageAndQuit();
-        }
-
+        if (args.length == 0) logUsageAndQuit();
         processArgs(args);
         inetAddr = getHostAddrName(host);
 
+        // TODO move to login method
         System.out.printf("ZING: %s (%s): %d ports used, %d ops per cycle%n",
                 hostName, hostAddr, ports.length,
                 (limit * ports.length));
@@ -104,24 +113,9 @@ final class Zing2 {
 
         long timeZingClose = System.currentTimeMillis();
 
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
-        double avg = 0.0;
-
-        for (int x = 0; x < count; x++) {
-
-            if (min > zingTimeTable[x]) {
-                min = zingTimeTable[x];
-            }
-            if (max < zingTimeTable[x]) {
-                max = zingTimeTable[x];
-            }
-            avg += zingTimeTable[x];
-
-        }
-
-        avg = avg / count;
-
+        double min = DoubleStream.of(zingTimeTable).min().orElse(Double.MAX_VALUE);
+        double max = DoubleStream.of(zingTimeTable).min().orElse(Double.MIN_VALUE);
+        double avg = DoubleStream.of(zingTimeTable).average().orElse(0.0);
         double stdDev = stddev(avg, zingTimeTable);
 
         System.out.printf("%n--- zing summary for %s/%s ---%n", hostName, hostAddr);
@@ -136,28 +130,25 @@ final class Zing2 {
     }
 
     private static void processArgs(final String[] args) {
-
         try {
-            for (int idx = 0; idx < args.length; idx++) {
-                System.out.println("Current index: " + idx);
-                String arg = args[idx];
-                switch (arg) {
-                    case "-4" -> setTcp4Flag(true);
-                    case "-6" -> setTcp4Flag(false);
-                    case "-c" -> setCount(args, idx);
-                    case "-op" -> setLimit(args, idx);
-                    case "-p" -> setPorts(args, idx);
-                    case "-t" -> setTimeout(args, idx);
-                    case "-h" -> logUsageAndQuit();
-                    default -> setHost(args, idx);
-                }
-            }
+            IntStream.range(0, args.length).forEach(index -> delegate(args, index));
         } catch (Exception e) {
             logParamErrorAndQuit();
         }
-
     }
 
+    private static void delegate(String[] args, int index) {
+        switch (args[index]) {
+            case FLAG_TCP_4 -> setTcp4Flag(true);
+            case FLAG_TCP_6 -> setTcp4Flag(false);
+            case FLAG_COUNT -> setCount(args, index);
+            case FLAG_LIMIT -> setLimit(args, index);
+            case FLAG_PORTS -> setPorts(args, index);
+            case FLAG_TIMEOUT -> setTimeout(args, index);
+            case FLAG_HELP -> logUsageAndQuit();
+            default -> setHost(args, index);
+        }
+    }
 
     /**
      * Get TCP/IP 4 32-bit address from a given host name.
@@ -166,13 +157,9 @@ final class Zing2 {
      * @return instance of TCP/IP-4 32-bit address for host name.
      */
     private static Inet4Address getIPv4Addr(final String hostName) throws UnknownHostException {
-        InetAddress[] addresses = InetAddress.getAllByName(hostName);
-        for (InetAddress addr : addresses) {
-            if (addr instanceof Inet4Address inet4Address) {
-                return inet4Address;
-            }
-        }
-        return null;
+        return (Inet4Address) Stream.of(InetAddress.getAllByName(hostName))
+                .filter(Inet4Address.class::isInstance)
+                .findFirst().orElse(null);
     }
 
     /**
@@ -182,13 +169,9 @@ final class Zing2 {
      * @return instance of TCP/IP-6 128-bit address for host name.
      */
     private static Inet6Address getIPv6Addr(final String hostName) throws UnknownHostException {
-        InetAddress[] addresses = InetAddress.getAllByName(hostName);
-        for (InetAddress addr : addresses) {
-            if (addr instanceof Inet6Address inet6Address) {
-                return inet6Address;
-            }
-        }
-        return null;
+        return (Inet6Address) Stream.of(InetAddress.getAllByName(hostName))
+                .filter(Inet6Address.class::isInstance)
+                .findFirst().orElse(null);
     }
 
     /**
@@ -203,17 +186,14 @@ final class Zing2 {
 
         try {
 
-            if (Zing2.tcp4Flag) {
-                iaddr = Zing2.getIPv4Addr(hostName);
-            } else {
-                iaddr = Zing2.getIPv6Addr(hostName);
-            }
+            iaddr = Zing2.tcp4Flag ? Zing2.getIPv4Addr(hostName) : Zing2.getIPv6Addr(hostName);
 
-            if (hostFlag) {
+            if (hostFlag && iaddr != null) {
                 Zing2.hostName = iaddr.getHostName();
                 Zing2.hostAddr = iaddr.getHostAddress();
                 Zing2.hostFlag = false;
             }
+
         } catch (Exception e) {
             System.out.printf(".. Error: Cannot resolve %s: Unknown host.%n", host);
             System.exit(1);
@@ -231,9 +211,7 @@ final class Zing2 {
      */
     private static double doZingToHost(final String host, final int port) {
 
-        if (inetAddr == null) {
-            inetAddr = getHostAddrName(host);
-        } // end if
+        if (inetAddr == null) inetAddr = getHostAddrName(host);
 
         try {
             if (inetAddr.isReachable(timeout)) { // command-line option -timeout
@@ -356,13 +334,9 @@ final class Zing2 {
     private static void setHost(String[] args, int index) {
         // check if arg has "-" at char[0], if so log error invalid command-line parameter
         var arg = args[index];
-        if (arg.charAt(0) == '-') {
-            logInvalidParamAndQuit(arg);
-        }
+        if (arg.charAt(0) == '-') logInvalidParamAndQuit(arg);
         // do not temporarily assign flag's value as host, it should remain localhost until valid host passed
-        if (index > 0 && args[index - 1].charAt(0) == '-') {
-            return;
-        }
+        if (index > 0 && args[index - 1].charAt(0) == '-') return;
         host = arg;
     }
 
