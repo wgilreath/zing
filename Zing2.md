@@ -36,7 +36,7 @@ chmod a+x ZingScript.sj
 ```
 
 - then run it like a Shell script
-- 
+
 ```shell
 ./ZingScript.sj
 ```
