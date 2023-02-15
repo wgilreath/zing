@@ -21,6 +21,8 @@
  **/
 package xyz.wfgilreath.net;
 
+import static java.lang.System.*;
+
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -44,8 +46,6 @@ final class Zing2 {
     private static final String FLAG_TIMEOUT = "-t";
     private static final String FLAG_HELP = "-h";
 
-
-    private static InetAddress inetAddr = null; // network address name for hostname
     private static int timeout = 4000; // default socket time 4000 ms = 4-seconds
     private static int count = 4;    // default count of times to perform ops
     private static Integer[] ports = new Integer[]{80, 443}; // default ports http, https
@@ -57,76 +57,25 @@ final class Zing2 {
     static boolean tcp4Flag = true; // default tcp4 ip-address
     static String hostName = "";         // result host name from DNS query
 
-    /**
-     * Private constructor to prevent instantiating this class except internally.
-     */
-    private Zing2() {
-    }
+    private Zing2() {}
 
-    /**
-     * The main method is the central start method of the zing network utility that invokes other methods to zing a host
-     * computer system on a network.
-     *
-     * @param args - command-line arguments to the zing network utility.
-     */
     public static void main(final String[] args) {
 
         if (args.length == 0) logUsageAndQuit();
+
         processArgs(args);
-        inetAddr = getHostAddrName(host);
 
-        // TODO move to login method
-        System.out.printf("ZING: %s (%s): %d ports used, %d ops per cycle%n",
-                hostName, hostAddr, ports.length,
-                (limit * ports.length));
+        logInitialInfo();
 
-        System.out.printf("ZING: %s (%s): %d ports used, %d ops per cycle%n",
-                hostName, hostAddr, ports.length, (limit * ports.length));
-
-        long timeZingStart = System.currentTimeMillis();
+        long timeZingStart = currentTimeMillis();
 
         double[] zingTimeTable = new double[count];
 
-        for (int x = 0; x < count; x++) {
+        IntStream.range(0, count).forEach(index -> executeCall(index, zingTimeTable));
 
-            double zingTime;
-            double totalTime = 0.0;
+        long timeZingClose = currentTimeMillis();
 
-            System.out.printf("#%d ", x + 1);
-            System.out.print(".");
-
-            for (int y = 0; y < limit; y++) {
-                for (int port : ports) {
-                    zingTime = doZingToHost(host, port);
-                    zingTimeTable[x] = zingTime;
-                    totalTime += zingTime;
-                }
-            }
-
-            System.out.print(".");
-            double time = getTotalTime(totalTime, ports.length, limit);
-
-            System.out.print(".");
-            report(time); // time = -1.0d, absent, else active
-
-        }
-
-        long timeZingClose = System.currentTimeMillis();
-
-        double min = DoubleStream.of(zingTimeTable).min().orElse(Double.MAX_VALUE);
-        double max = DoubleStream.of(zingTimeTable).min().orElse(Double.MIN_VALUE);
-        double avg = DoubleStream.of(zingTimeTable).average().orElse(0.0);
-        double stdDev = stddev(avg, zingTimeTable);
-
-        System.out.printf("%n--- zing summary for %s/%s ---%n", hostName, hostAddr);
-        System.out.printf("%d total ops used; total time: %d ms%n", (ports.length * limit * count),
-                (timeZingClose - timeZingStart));
-
-        System.out.printf("total-time min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms", min, avg, max, stdDev);
-        System.out.printf("%n%n");
-
-        System.exit(0);
-
+        countStatsAndQuit(zingTimeTable, timeZingStart, timeZingClose);
     }
 
     private static void processArgs(final String[] args) {
@@ -148,6 +97,38 @@ final class Zing2 {
             case FLAG_HELP -> logUsageAndQuit();
             default -> setHost(args, index);
         }
+    }
+
+    private static void executeCall(int indexOfCall, double[] zingTimeTable) {
+        double zingTime;
+        double totalTime = 0.0;
+
+        out.printf("#%d ", indexOfCall + 1);
+        out.print(".");
+
+        for (int y = 0; y < limit; y++) {
+            for (int port : ports) {
+                zingTime = doZingToHost(host, port);
+                zingTimeTable[indexOfCall] = zingTime;
+                totalTime += zingTime;
+            }
+        }
+
+        out.print(".");
+        double time = getTotalTime(totalTime, ports.length, limit);
+
+        out.print(".");
+        report(time); // time = -1.0d, absent, else active
+    }
+
+    private static void countStatsAndQuit(double[] zingTimeTable, long timeZingStart, long timeZingClose) {
+
+        double min = DoubleStream.of(zingTimeTable).min().orElse(Double.MAX_VALUE);
+        double max = DoubleStream.of(zingTimeTable).max().orElse(Double.MIN_VALUE);
+        double avg = DoubleStream.of(zingTimeTable).average().orElse(0.0);
+        double stdDev = stddev(avg, zingTimeTable);
+
+        logStatsAndQuit(timeZingStart, timeZingClose, min, avg, max, stdDev);
     }
 
     /**
@@ -194,9 +175,11 @@ final class Zing2 {
                 Zing2.hostFlag = false;
             }
 
+            if (iaddr == null) logHostErrorAndQuit();
+
         } catch (Exception e) {
-            System.out.printf(".. Error: Cannot resolve %s: Unknown host.%n", host);
-            System.exit(1);
+            out.printf(".. Error: Cannot resolve %s: Unknown host.%n", host);
+            exit(1);
         }
 
         return iaddr;
@@ -211,17 +194,17 @@ final class Zing2 {
      */
     private static double doZingToHost(final String host, final int port) {
 
-        if (inetAddr == null) inetAddr = getHostAddrName(host);
+        InetAddress inetAddr = getHostAddrName(host);
 
         try {
             if (inetAddr.isReachable(timeout)) { // command-line option -timeout
-                System.out.printf(".. Error: Host is unreachable.%n", host, inetAddr.getHostAddress());
-                System.exit(1);
+                out.printf(".. Error: Host %s %s unreachable.%n", host, inetAddr.getHostAddress());
+                exit(1);
             } // end if
 
         } catch (Exception e) {
-            System.out.printf(".. Error: Host contact timeout.%n", host, inetAddr.getHostAddress());
-            System.exit(1);
+            out.printf(".. Error: Host %s %s contact timeout.%n", host, inetAddr.getHostAddress());
+            exit(1);
         }
 
         boolean presentFlag = true;
@@ -232,15 +215,15 @@ final class Zing2 {
 
         try {
 
-            socketTimeStart = System.currentTimeMillis();
+            socketTimeStart = currentTimeMillis();
 
             try (Socket socket = new Socket(host, port)) {
                 socket.setSoTimeout(timeout);
             }
-            socketTimeClose = System.currentTimeMillis();
+            socketTimeClose = currentTimeMillis();
 
         } catch (SocketTimeoutException e) {
-            System.out.printf("Timed out after %d ms waiting for host.%n", timeout);
+            out.printf("Timed out after %d ms waiting for host.%n", timeout);
             presentFlag = false;
         } catch (Exception e) {
             presentFlag = false;
@@ -249,7 +232,7 @@ final class Zing2 {
         if (presentFlag) {
             socketTimeTotal = socketTimeTotal + (socketTimeClose - socketTimeStart);
         } else {
-            System.out.print(".");
+            out.print(".");
             return -1.0d;
         }
 
@@ -276,15 +259,15 @@ final class Zing2 {
      */
     private static void report(final double time) {
 
-        System.out.printf(" %d ops to %s (%s): ", limit * ports.length, hostName, hostAddr);
+        out.printf(" %d ops to %s (%s): ", limit * ports.length, hostName, hostAddr);
 
         //if time == -1.0 no timing statistics, unable to zing host computer system
         if (time >= 0.0d) {
-            System.out.print("Active ");
-            System.out.printf("time = %,.3f ms%n", time);
+            out.print("Active ");
+            out.printf("time = %,.3f ms%n", time);
         } else {
-            System.out.println("Absent!");
-            System.exit(0);
+            out.println("Absent!");
+            exit(0);
         }
 
     }
@@ -307,12 +290,6 @@ final class Zing2 {
 
         return Math.sqrt(dv / values.length);
 
-    }
-
-    private static void logUsageAndQuit() {
-        System.out.println(ZING_USAGE);
-        System.out.println(ZING_EXAMPLE);
-        System.exit(0);
     }
 
     private static void setTcp4Flag(boolean flag) {
@@ -349,18 +326,44 @@ final class Zing2 {
     }
 
     private static int parseArgValueToInt(String[] args, int index) {
-        System.out.println("Inside method: " + index);
         return Integer.parseInt(args[index + 1]);
     }
 
+    private static void logUsageAndQuit() {
+        out.println(ZING_USAGE);
+        out.println(ZING_EXAMPLE);
+        exit(0);
+    }
+
+    private static void logInitialInfo() {
+        out.printf("ZING: %s (%s): %d ports used, %d ops per cycle%n",
+                hostName, hostAddr, ports.length,
+                (limit * ports.length));
+    }
+
     private static void logInvalidParamAndQuit(String arg) {
-        System.out.printf("Error '%s' is invalid command-line parameter!%n", arg);
-        System.exit(1);
+        out.printf("Error '%s' is invalid command-line parameter!%n", arg);
+        exit(1);
     }
 
     private static void logParamErrorAndQuit() {
-        System.out.printf("Error with command-line arguments!%n");
-        System.exit(1);
+        out.printf("Error with command-line arguments!%n");
+        exit(1);
+    }
+
+    private static void logHostErrorAndQuit() {
+        out.println("Cannot resolve host. Inet address is null");
+        exit(1);
+    }
+
+    private static void logStatsAndQuit(long timeZingStart, long timeZingClose, double min, double avg, double max, double stdDev) {
+        out.printf("%n--- zing summary for %s/%s ---%n", hostName, hostAddr);
+        out.printf("%d total ops used; total time: %d ms%n", (ports.length * limit * count),
+                (timeZingClose - timeZingStart));
+
+        out.printf("total-time min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms", min, avg, max, stdDev);
+        out.printf("%n%n");
+        exit(0);
     }
 
 }
