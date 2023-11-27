@@ -4,13 +4,13 @@
   Title: Zing - Zero packet pING network utility implemented in C90.
 
   Description: Zero packet PING utility that checks host by name or ip-address is active,
-                 and time to reach that host. The port list is required to be explicit on
-                 the command-line interface, no default ports.
+               and time to reach that host.
 
   Author William F. Gilreath (will@wfgilreath.xyz)
   Version 1.1  07/09/23
+  Version 1.2  11/26/23
 
-  Copyright   2023 All Rights Reserved.
+  Copyright © 2023 All Rights Reserved.
 
   License: This software is subject to the terms of the GNU General Public License (GPL)
   version 3.0 available at the following link: http://www.gnu.org/copyleft/gpl.html.
@@ -34,11 +34,13 @@
 #include <time.h>
 #include <unistd.h>
 
-#define OP_VAL 5
 #define COUNT_VAL 4
-#define TIME_VAL 3
 #define HOST "localhost"
+#define OP_VAL 5
+#define PORT_LEN (strlen(PORT_VAL)+1)
+#define PORT_VAL "80,443"
 #define TCP_VAL '0'
+#define TIME_VAL 3
 
 struct timeval timeStart;
 struct timeval timeClose;
@@ -134,12 +136,8 @@ void *get_in_addr(struct sockaddr *sa) {
   return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }//end get_in_addr
 
-void usage(void) {
-  printf("usage: zing ( [-4|-6] [-c <count>] | [-op <limit>] | [-t <timeout>] -p (<port>)+ <host> | -h ) \n\r");
-  printf("zing -p 80,443 1.1.1.1");
-  printf("\n\r");
-  printf("zing -4 -c 6 -op 4 -t 3000 -p 80,443 google.com");
-  printf("\n\r");
+void usage(char* argv[]) {
+  printf("usage: %s ( [-4|-6] [-c <count>] | [-op <limit>] | [-t <timeout>] [-p (<port>)+] <host> | -h ) \n\r", argv[0]);
   exit(0);
 }//end usage
 
@@ -183,6 +181,9 @@ char **str_split(char *a_str, const char a_delim) {
 
 void process_args(int argc, char *argv[]) {
 
+  param_ports = malloc( sizeof(char) * PORT_LEN );           
+  strcpy(param_ports, PORT_VAL);
+  
   int x = -1;
   for (x = 1; x < argc; x++) {
     char chr = argv[x][0];
@@ -206,7 +207,7 @@ void process_args(int argc, char *argv[]) {
           x++;
           break; //count
         case 'h' :
-          usage();
+          usage(argv);
           break;
         case 't' :
           param_time = atoi(argv[x + 1]);
@@ -240,7 +241,7 @@ void process_args(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 
   if (argc < 2) {
-    usage();
+    usage(argv);
   }//end if
 
   process_args(argc, argv);
