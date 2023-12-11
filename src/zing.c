@@ -7,9 +7,11 @@
                and time to reach that host.
 
   Author William F. Gilreath (will@wfgilreath.xyz)
+ 
   Version 1.1  07/09/23
   Version 1.2  11/26/23
-
+  Version 1.3  12/11/23
+ 
   Copyright © 2023 All Rights Reserved.
 
   License: This software is subject to the terms of the GNU General Public License (GPL)
@@ -41,7 +43,9 @@
 #define PORT_VAL "80,443"
 #define TCP_VAL '0'
 #define TIME_VAL 3
-
+#define ZING_VER 1.3
+#define ZING_EXAMPLE "zing -4 -c 4 -op 4 -p 80,443 -t 4000 google.com"
+#define ZING_USAGE "( [-4|-6] [-c <count>] | [-op <limit>] | [-t <timeout>] [-p (<port>)+] <host> | -h )"
 struct timeval timeStart;
 struct timeval timeClose;
 struct timeval time_zing_start, time_zing_close;
@@ -137,7 +141,11 @@ void *get_in_addr(struct sockaddr *sa) {
 }//end get_in_addr
 
 void usage(char* argv[]) {
-  printf("usage: %s ( [-4|-6] [-c <count>] | [-op <limit>] | [-t <timeout>] [-p (<port>)+] <host> | -h ) \n\r", argv[0]);
+  printf("zing C v.%.2f\n\r",ZING_VER);
+  //printf("usage:   %s ( [-4|-6] [-c <count>] | [-op <limit>] | [-t <timeout>] [-p (<port>)+] <host> | -h ) \n\r", argv[0]);
+  printf("usage:   %s %s\n\r", argv[0], ZING_USAGE);
+  printf("example: %s\n\r", ZING_EXAMPLE);
+  printf("\n\r");
   exit(0);
 }//end usage
 
@@ -215,11 +223,9 @@ void process_args(int argc, char *argv[]) {
           break; //timeout
         case '4' :
           param_tcp = '4';
-          x++;
           break;
         case '6':
           param_tcp = '6';
-          x++;
           break;
         default:
           printf("Error: Invalid command-line argument: %s!\n\r", argv[x]);
