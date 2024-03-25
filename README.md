@@ -1,6 +1,10 @@
 # Zing - the Zero packet Ping network utility
 
-Zing is a lightweight, zero packet utility similar to ping, that provides similar functionality as the ubiquitous ping network utility. The Zing network utility was published in Linux magazine for December 2022 Issue 265/2022 as "Zing Me" here: https://www.linux-magazine.com/Issues/2022/265/Zing#article_i5
+Zing is a lightweight, zero packet utility similar to ping, that provides similar functionality as the ubiquitous ping network utility. The Zing network utility was published in Linux magazine for December 2022 Issue 265/2022 as "Zing Me" here: https://www.linux-magazine.com/Issues/2022/265/Zing#article_i5 
+
+A follow up article about an implementation as a bash shell script was published in Admin Magazine 77/2023 as "Have a Bash with the Zing network utility Zinger" here: https://www.admin-magazine.com/Archive/2023/77/Have-a-Bash-with-the-Zing-network-utility. 
+
+The userbook as an ebook "Zing This!" is here: https://books2read.com/u/bOEVPo and is available in this GitHub repository under the directory "books" as ePub and PDF documents. 
 
 Features
 ========
@@ -96,7 +100,9 @@ An example of **ping** to open-DNS server one.one.one.one using TCP/IP v6 to the
 Ports to Other Languages
 ===============================
 
-Zing has been ported as of November 2022 to C# and Python; as of January 2023 Zing has been ported to Go. If you port Zing to another programming language, please reach out and share!
+Zing has been ported as of November 2022 to C# and Python; as of January 2023 Zing has been ported to Go. Zing has been ported to Kotlin, Rust, and Ruby.
+
+If you port Zing to another programming language, please reach out and share!
 
 License
 ===============================
